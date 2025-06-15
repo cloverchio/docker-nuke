@@ -22,6 +22,7 @@ func ProcessNuke(subCommands []string) error {
 		if resourceRemoveError != nil {
 			return resourceRemoveError
 		}
+		return nil
 	}
 	if *flag.Containers {
 		fmt.Println(pkg.SubCommandMessage("stopped", "containers"))

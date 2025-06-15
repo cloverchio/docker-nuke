@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/cloverchio/docker-nuke/internal/client"
 	"github.com/docker/docker/api/types/network"
+	"slices"
 )
 
 func RemoveAllNetworks() error {
@@ -17,7 +18,11 @@ func RemoveAllNetworks() error {
 		fmt.Printf("Error listing networks: %v\n", networkListError)
 		return networkListError
 	}
+	defaultNetworks := []string{"bridge", "none", "host"}
 	for _, individualNetwork := range networks {
+		if slices.Contains(defaultNetworks, individualNetwork.Name) {
+			continue
+		}
 		networkRemoveError := client.Docker.NetworkRemove(context.Background(), individualNetwork.ID)
 		if networkRemoveError != nil {
 			fmt.Printf("Error removing network %s: %v\n", individualNetwork.ID, networkRemoveError)
