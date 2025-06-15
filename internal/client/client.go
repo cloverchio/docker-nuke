@@ -8,10 +8,10 @@ import (
 var Docker *client.Client
 
 func InitializeDockerClient() {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
-	if err != nil {
-		fmt.Printf("Error initializing Docker client: %v", err)
+	dockerClient, dockerClientError := client.NewClientWithOpts(client.FromEnv)
+	if dockerClientError != nil {
+		fmt.Printf("Error initializing Docker client: %v", dockerClientError)
 		return
 	}
-	Docker = cli
+	Docker = dockerClient
 }

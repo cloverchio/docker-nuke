@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"os"
 	"github.com/cloverchio/docker-nuke/cmd"
+	"github.com/cloverchio/docker-nuke/internal/client"
 )
 
 func main() {
-	ok, err := cmd.ProcessSubcommandArgs(os.Args)
-	if !ok {
-		fmt.Println(err)
+	client.InitializeDockerClient()
+	subCommandError := cmd.ProcessSubcommandArgs(os.Args)
+	if subCommandError != nil {
+		fmt.Println(subCommandError)
 		os.Exit(1)
 	}
 }

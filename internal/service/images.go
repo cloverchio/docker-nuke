@@ -1,10 +1,10 @@
-package object
+package service
 
 import (
     "context"
     "fmt"
     "github.com/cloverchio/docker-nuke/internal/client"
-    "github.com/docker/docker/api/types"
+    "github.com/docker/docker/api/types/image"
 )
 
 func RemoveDanglingImages() error {
@@ -12,16 +12,16 @@ func RemoveDanglingImages() error {
     if containerStopError != nil {
         return containerStopError
     }
-    images, imageListError := client.Docker.ImageList(context.Background(), types.ImageListOptions{All: true})
+    images, imageListError := client.Docker.ImageList(context.Background(), image.ListOptions{All: true})
     if imageListError != nil {
         imageListErrorMessage(imageListError)
         return imageListError
     }
-    for _, image := range images {
-        if len(image.RepoTags) == 0 {
-            _, imageRemoveError := client.Docker.ImageRemove(context.Background(), image.ID, types.ImageRemoveOptions{Force: true})
+    for _, individualImage := range images {
+        if len(individualImage.RepoTags) == 0 {
+            _, imageRemoveError := client.Docker.ImageRemove(context.Background(), individualImage.ID, image.RemoveOptions{Force: true})
             if imageRemoveError != nil {
-                imageRemoveErrorMessage(image.ID, imageListError)
+                imageRemoveErrorMessage(individualImage.ID, imageListError)
                 return imageRemoveError
             }
         }
@@ -34,18 +34,18 @@ func RemoveAllImages() error {
     if containerStopError != nil {
         return containerStopError
     }
-    images, imageListError := client.Docker.ImageList(context.Background(), types.ImageListOptions{All: true})
+    images, imageListError := client.Docker.ImageList(context.Background(), image.ListOptions{All: true})
     if imageListError != nil {
         imageListErrorMessage(imageListError)
         return imageListError
     }
-    for _, image := range images {
-        _, imageRemoveError := client.Docker.ImageRemove(context.Background(), image.ID, types.ImageRemoveOptions{Force: true})
+    for _, individualImage := range images {
+        _, imageRemoveError := client.Docker.ImageRemove(context.Background(), individualImage.ID, image.RemoveOptions{Force: true})
         if imageRemoveError != nil {
-            imageRemoveErrorMessage(image.ID, imageRemoveError)
+            imageRemoveErrorMessage(individualImage.ID, imageRemoveError)
             return imageRemoveError
         }
-        imageRemoveSuccessMessage(image.ID)
+        imageRemoveSuccessMessage(individualImage.ID)
     }
     return nil
 }

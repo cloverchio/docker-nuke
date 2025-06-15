@@ -4,60 +4,63 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cloverchio/docker-nuke/internal/flag"
-	"github.com/cloverchio/docker-nuke/internal/object"
+	"github.com/cloverchio/docker-nuke/internal/service"
 	"github.com/cloverchio/docker-nuke/pkg"
 )
 
-func ProcessNuke(subCommands []string) (bool, error) {
+func ProcessNuke(subCommands []string) error {
 	nuke := flag.NukeFlagSet()
 	nuke.Usage = pkg.Usage()
-	err := nuke.Parse(subCommands)
-	if err != nil {
+	parseError := nuke.Parse(subCommands)
+	if parseError != nil {
 		nuke.Usage()
-		return false, fmt.Errorf("Error parsing flags: %v", err)
+		return fmt.Errorf("Error parsing flags: %v", parseError)
 	}
 	if *flag.All {
 		fmt.Println(pkg.SubCommandMessage("unused", "containers, images, volumes, and networks"))
-		return true, nil
+		resourceRemoveError := service.RemoveAllResources()
+		if resourceRemoveError != nil {
+			return resourceRemoveError
+		}
 	}
 	if *flag.Containers {
 		fmt.Println(pkg.SubCommandMessage("stopped", "containers"))
-		containerRemoveError := object.RemoveAllContainers()
+		containerRemoveError := service.RemoveAllContainers()
 		if containerRemoveError != nil {
-			return false, containerRemoveError
+			return containerRemoveError
 		}
 	}
 	if *flag.Images {
 		fmt.Println(pkg.SubCommandMessage("dangling", "images"))
-		imageRemoveError := object.RemoveDanglingImages()
+		imageRemoveError := service.RemoveDanglingImages()
 		if imageRemoveError != nil {
-			return false, imageRemoveError
+			return imageRemoveError
 		}
 	}
 	if *flag.AllImages {
 		fmt.Println(pkg.SubCommandMessage("unused", "images"))
-		imageRemoveError := object.RemoveAllImages()
+		imageRemoveError := service.RemoveAllImages()
 		if imageRemoveError != nil {
-			return false, imageRemoveError
+			return imageRemoveError
 		}
 	}
 	if *flag.Volumes {
 		fmt.Println(pkg.SubCommandMessage("unused", "volumes"))
-		volumeRemoveError := object.RemoveAllVolumes()
+		volumeRemoveError := service.RemoveAllVolumes()
 		if volumeRemoveError != nil {
-			return false, volumeRemoveError
+			return volumeRemoveError
 		}
 	}
 	if *flag.Networks {
 		fmt.Println(pkg.SubCommandMessage("unused", "networks"))
-		networkRemoveError := object.RemoveAllNetworks()
+		networkRemoveError := service.RemoveAllNetworks()
 		if networkRemoveError != nil {
-			return false, networkRemoveError
+			return networkRemoveError
 		}
 	}
 	if !(*flag.Containers || *flag.Images || *flag.AllImages || *flag.Volumes || *flag.Networks) {
 		nuke.Usage()
-		return false, errors.New("Please specify at least one flag to nuke: --containers, --images, --volumes, --networks, or --all")
+		return errors.New("Please specify at least one flag to nuke: --containers, --images, --volumes, --networks, or --all")
 	}
-	return true, nil
+	return nil
 }

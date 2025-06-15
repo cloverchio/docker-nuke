@@ -5,9 +5,9 @@ import (
 	"fmt"
 )
 
-func ProcessSubcommandArgs(args []string) (bool, error) {
+func ProcessSubcommandArgs(args []string) error {
 	if len(args) < 2 {
-		return false, errors.New("Must specifiy a sub-command: nuke or help")
+		return errors.New("Must specifiy a sub-command: nuke or help")
 	}
 	switch args[1] {
 	case "nuke":
@@ -15,6 +15,6 @@ func ProcessSubcommandArgs(args []string) (bool, error) {
 	case "help":
 		return ProcessHelp()
 	default:
-		return false, fmt.Errorf("Unknown subcommand: %s\nUse 'docker-nuke help' for instructions", args[1])
+		return fmt.Errorf("Unknown subcommand: %s\nUse 'docker-nuke help' for instructions", args[1])
 	}
 }
