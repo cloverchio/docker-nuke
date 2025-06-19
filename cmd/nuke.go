@@ -9,6 +9,27 @@ import (
 	"github.com/docker/docker/client"
 )
 
+// ProcessNuke processes the nuke command by executing the appropriate resource removal
+// based on the provided subcommands and flags.
+//
+// This function initializes the Docker client, parses the subcommands and flags, and
+// then performs the requested resource removal actions. The function handles removing
+// containers, images, volumes, and networks, either individually or all at once if the
+// "--all" flag is provided. If no flags are specified or an error occurs at any step,
+// the function prints usage instructions or the error message.
+//
+// Parameters:
+//   - subCommands: A slice of strings representing the subcommands and flags to be processed.
+//
+// Returns:
+//   - error: Returns an error if there is a failure during client initialization, flag parsing,
+//     or resource removal. If the operation is successful, it returns nil.
+//
+// Example Usage:
+//   err := ProcessNuke(subCommands)
+//   if err != nil {
+//     fmt.Println("Error during nuke operation:", err)
+//   }
 func ProcessNuke(subCommands []string) error {
 	dockerClient, dockerClientError := client.NewClientWithOpts(client.FromEnv)
 	if dockerClientError != nil {

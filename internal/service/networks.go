@@ -8,6 +8,27 @@ import (
 	"slices"
 )
 
+// RemoveAllNetworks removes all Docker networks except for the default networks.
+//
+// This function first stops all containers by calling StopAllContainers,
+// then retrieves a list of all Docker networks. It iterates over the networks
+// and removes any network that is not one of the default networks: "bridge", "none",
+// or "host". If any errors occur during stopping containers, listing networks, or
+// removing networks, the function will print the error and return it.
+//
+// Parameters:
+//   - dockerClient: A client instance that conforms to the Docker interface,
+//     used for interacting with Docker networks and containers.
+//
+// Returns:
+//   - error: Returns an error if there is an issue with stopping containers,
+//     listing networks, or removing networks. If all operations succeed, it returns nil.
+//
+// Example Usage:
+//   err := RemoveAllNetworks(dockerClient)
+//   if err != nil {
+//     fmt.Println("Error removing networks:", err)
+//   }
 func RemoveAllNetworks(dockerClient client.Docker) error {
 	containerStopError := StopAllContainers(dockerClient)
 	if containerStopError != nil {
