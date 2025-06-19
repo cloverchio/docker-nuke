@@ -2,12 +2,12 @@ package mocks
 
 import (
     "context"
-    "github.com/stretchr/testify/mock"
     "github.com/docker/docker/api/types"
     "github.com/docker/docker/api/types/container"
     "github.com/docker/docker/api/types/image"
     "github.com/docker/docker/api/types/network"
     "github.com/docker/docker/api/types/volume"
+    "github.com/stretchr/testify/mock"
 )
 
 type MockDockerClient struct {
@@ -53,6 +53,7 @@ func (mockDockerClient *MockDockerClient) VolumeList(context context.Context, op
     args := mockDockerClient.Called(context, options)
     return args.Get(0).(volume.ListResponse), args.Error(1)
 }
+
 func (mockDockerClient *MockDockerClient) VolumeRemove(context context.Context, volumeID string, force bool) error {
     args := mockDockerClient.Called(context, volumeID, force)
     return args.Error(0)
