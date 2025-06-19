@@ -7,14 +7,14 @@ import (
     "github.com/docker/docker/api/types/container"
 )
 
-func StopAllContainers() error {
-    containers, containerListError := client.Docker.ContainerList(context.Background(), container.ListOptions{All: true})
+func StopAllContainers(dockerClient client.Docker) error {
+    containers, containerListError := dockerClient.ContainerList(context.Background(), container.ListOptions{All: true})
     if containerListError != nil {
-        fmt.Printf("Error listing containers: %v\n", containerListError)
+        containerListErrorMessage(containerListError)
         return containerListError
     }
     for _, individualContainer := range containers {
-        containerStopError := client.Docker.ContainerStop(context.Background(), individualContainer.ID, container.StopOptions{})
+        containerStopError := dockerClient.ContainerStop(context.Background(), individualContainer.ID, container.StopOptions{})
         if containerStopError != nil {
             fmt.Printf("Error stopping container %s: %v\n", individualContainer.ID, containerStopError)
             return containerStopError
@@ -24,18 +24,19 @@ func StopAllContainers() error {
     return nil
 }
 
-func RemoveAllContainers() error {
-    containerStopError := StopAllContainers()
+func RemoveAllContainers(dockerClient client.Docker) error {
+    containerStopError := StopAllContainers(dockerClient)
     if containerStopError != nil {
         return containerStopError
     }
-    containers, containerListError := client.Docker.ContainerList(context.Background(), container.ListOptions{All: true})
+    containers, containerListError := dockerClient.ContainerList(context.Background(), container.ListOptions{All: true})
     if containerListError != nil {
         containerListErrorMessage(containerListError)
         return containerListError
     }
     for _, individualContainer := range containers {
-        containerRemoveError := client.Docker.ContainerRemove(context.Background(), individualContainer.ID, container.RemoveOptions{Force: true})
+        fmt.Println(individualContainer.ID)
+        containerRemoveError := dockerClient.ContainerRemove(context.Background(), individualContainer.ID, container.RemoveOptions{Force: true})
         if containerRemoveError != nil {
             fmt.Printf("Error removing container %s: %v\n", individualContainer.ID, containerRemoveError)
             return containerRemoveError

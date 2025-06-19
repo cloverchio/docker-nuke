@@ -6,9 +6,14 @@ import (
 	"github.com/cloverchio/docker-nuke/internal/flag"
 	"github.com/cloverchio/docker-nuke/internal/service"
 	"github.com/cloverchio/docker-nuke/pkg"
+	"github.com/docker/docker/client"
 )
 
 func ProcessNuke(subCommands []string) error {
+	dockerClient, dockerClientError := client.NewClientWithOpts(client.FromEnv)
+	if dockerClientError != nil {
+		return fmt.Errorf("Error initializing Docker client: %v", dockerClientError)
+	}
 	nuke := flag.NukeFlagSet()
 	nuke.Usage = pkg.Usage()
 	parseError := nuke.Parse(subCommands)
@@ -18,7 +23,7 @@ func ProcessNuke(subCommands []string) error {
 	}
 	if *flag.All {
 		fmt.Println(pkg.SubCommandMessage("unused", "containers, images, volumes, and networks"))
-		resourceRemoveError := service.RemoveAllResources()
+		resourceRemoveError := service.RemoveAllResources(dockerClient)
 		if resourceRemoveError != nil {
 			return resourceRemoveError
 		}
@@ -26,35 +31,35 @@ func ProcessNuke(subCommands []string) error {
 	}
 	if *flag.Containers {
 		fmt.Println(pkg.SubCommandMessage("stopped", "containers"))
-		containerRemoveError := service.RemoveAllContainers()
+		containerRemoveError := service.RemoveAllContainers(dockerClient)
 		if containerRemoveError != nil {
 			return containerRemoveError
 		}
 	}
 	if *flag.Images {
 		fmt.Println(pkg.SubCommandMessage("dangling", "images"))
-		imageRemoveError := service.RemoveDanglingImages()
+		imageRemoveError := service.RemoveDanglingImages(dockerClient)
 		if imageRemoveError != nil {
 			return imageRemoveError
 		}
 	}
 	if *flag.AllImages {
 		fmt.Println(pkg.SubCommandMessage("unused", "images"))
-		imageRemoveError := service.RemoveAllImages()
+		imageRemoveError := service.RemoveAllImages(dockerClient)
 		if imageRemoveError != nil {
 			return imageRemoveError
 		}
 	}
 	if *flag.Volumes {
 		fmt.Println(pkg.SubCommandMessage("unused", "volumes"))
-		volumeRemoveError := service.RemoveAllVolumes()
+		volumeRemoveError := service.RemoveAllVolumes(dockerClient)
 		if volumeRemoveError != nil {
 			return volumeRemoveError
 		}
 	}
 	if *flag.Networks {
 		fmt.Println(pkg.SubCommandMessage("unused", "networks"))
-		networkRemoveError := service.RemoveAllNetworks()
+		networkRemoveError := service.RemoveAllNetworks(dockerClient)
 		if networkRemoveError != nil {
 			return networkRemoveError
 		}

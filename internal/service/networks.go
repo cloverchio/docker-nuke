@@ -8,12 +8,12 @@ import (
 	"slices"
 )
 
-func RemoveAllNetworks() error {
-	containerStopError := StopAllContainers()
+func RemoveAllNetworks(dockerClient client.Docker) error {
+	containerStopError := StopAllContainers(dockerClient)
 	if containerStopError != nil {
 		return containerStopError
 	}
-	networks, networkListError := client.Docker.NetworkList(context.Background(), network.ListOptions{})
+	networks, networkListError := dockerClient.NetworkList(context.Background(), network.ListOptions{})
 	if networkListError != nil {
 		fmt.Printf("Error listing networks: %v\n", networkListError)
 		return networkListError
@@ -23,7 +23,7 @@ func RemoveAllNetworks() error {
 		if slices.Contains(defaultNetworks, individualNetwork.Name) {
 			continue
 		}
-		networkRemoveError := client.Docker.NetworkRemove(context.Background(), individualNetwork.ID)
+		networkRemoveError := dockerClient.NetworkRemove(context.Background(), individualNetwork.ID)
 		if networkRemoveError != nil {
 			fmt.Printf("Error removing network %s: %v\n", individualNetwork.ID, networkRemoveError)
 			return networkRemoveError

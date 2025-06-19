@@ -7,18 +7,18 @@ import (
     "github.com/docker/docker/api/types/volume"
 )
 
-func RemoveAllVolumes() error {
-    containerStopError := StopAllContainers()
+func RemoveAllVolumes(dockerClient client.Docker) error {
+    containerStopError := StopAllContainers(dockerClient)
     if containerStopError != nil {
         return containerStopError
     }
-    volumes, volumeListError := client.Docker.VolumeList(context.Background(), volume.ListOptions{})
+    volumes, volumeListError := dockerClient.VolumeList(context.Background(), volume.ListOptions{})
     if volumeListError != nil {
         fmt.Printf("Error listing volumes: %v\n", volumeListError)
         return volumeListError
     }
     for _, individualVolume := range volumes.Volumes {
-        volumeRemoveError := client.Docker.VolumeRemove(context.Background(), individualVolume.Name, true)
+        volumeRemoveError := dockerClient.VolumeRemove(context.Background(), individualVolume.Name, true)
         if volumeRemoveError != nil {
             fmt.Printf("Error removing volume %s: %v\n", individualVolume.Name, volumeRemoveError)
             return volumeRemoveError

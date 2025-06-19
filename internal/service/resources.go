@@ -1,19 +1,21 @@
 package service
 
-func RemoveAllResources() error {
-    containerRemoveError := RemoveAllContainers()
+import "github.com/cloverchio/docker-nuke/internal/client"
+
+func RemoveAllResources(dockerClient client.Docker) error {
+    containerRemoveError := RemoveAllContainers(dockerClient)
     if containerRemoveError != nil {
         return containerRemoveError
     }
-    imageRemoveError := RemoveAllImages()
+    imageRemoveError := RemoveAllImages(dockerClient)
     if imageRemoveError != nil {
         return imageRemoveError
     }
-    volumeRemoveError := RemoveAllVolumes()
+    volumeRemoveError := RemoveAllVolumes(dockerClient)
     if volumeRemoveError != nil {
         return volumeRemoveError
     }
-    networkRemoveError := RemoveAllNetworks()
+    networkRemoveError := RemoveAllNetworks(dockerClient)
     if networkRemoveError != nil {
         return networkRemoveError
     }
